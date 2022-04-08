@@ -27,7 +27,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['ai-fund-backend.herokuapp.com', 'localhost', '127.0.0.1', 'ai-fund.herokuapp.com']
+# ALLOWED_HOSTS = ['ai-fund-backend.herokuapp', 'localhost', '127.0.0.1', 'ai-fund.herokuapp']
+
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
