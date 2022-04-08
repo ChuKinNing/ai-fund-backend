@@ -19,6 +19,14 @@ class Stock(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     sector = models.CharField(max_length=50, blank=True, null=True)
     dailyReturn = ArrayField(models.FloatField(max_length=20, blank=True, null=True), null=True)
+    start2018 = models.FloatField(max_length=20, blank=True, null=True)
+    end2018 = models.FloatField(max_length=20, blank=True, null=True)
+    start2019 = models.FloatField(max_length=20, blank=True, null=True)
+    end2019 = models.FloatField(max_length=20, blank=True, null=True)
+    start2020 = models.FloatField(max_length=20, blank=True, null=True)
+    end2020 = models.FloatField(max_length=20, blank=True, null=True)
+    start2021 = models.FloatField(max_length=20, blank=True, null=True)
+    end2021 = models.FloatField(max_length=20, blank=True, null=True)
     
     def __str__(self):
         return str(self.id)

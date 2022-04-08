@@ -191,30 +191,47 @@ def analyzePortfolio(request):
         weightedStocks = WeightedStock.objects.filter(portfolio=portfolio_id)
         serializer = WeightedStockSerializer(weightedStocks, many=True)
         stocks = serializer.data
-        tickers = []
-        for stock in stocks:
-            tickers.append(stock['symbol'])
-        print('********************Downloading stock data*****************')
-        stockPriceDf18 = yf.download(tickers, group_by='Ticker', start="2018-01-02", end="2018-01-03")
-        stockPriceDf19 = yf.download(tickers, group_by='Ticker', start="2019-01-02", end="2019-01-03")
-        stockPriceDf20 = yf.download(tickers, group_by='Ticker', start="2020-01-02", end="2020-01-03")
-        stockPriceDf21 = yf.download(tickers, group_by='Ticker', start="2021-01-04", end="2021-01-05")
-        stockPriceDf18end = yf.download(tickers, group_by='Ticker', start="2018-12-29", end="2018-12-30")
-        stockPriceDf19end = yf.download(tickers, group_by='Ticker', start="2020-01-01", end="2020-01-01")
-        stockPriceDf20end = yf.download(tickers, group_by='Ticker', start="2021-01-01", end="2021-01-01")
-        stockPriceDf21end = yf.download(tickers, group_by='Ticker', start="2022-01-01", end="2022-01-01")
-        stockPriceDf = pd.concat([stockPriceDf18, stockPriceDf18end, stockPriceDf19, stockPriceDf19end, stockPriceDf20, stockPriceDf20end, stockPriceDf21, stockPriceDf21end])
-        print('********************Trimming stock data*********************')
-        trimmedStockPriceDf = stockPriceDf.dropna(axis=0, how='all')
-        trimmedStockPriceDf = trimmedStockPriceDf.dropna(axis=1)
-        for ticker in tickers:
-            try:
-                trimmedStockPriceDf = trimmedStockPriceDf.drop([(ticker,'Open'),(ticker,'High'),(ticker,'Low'),(ticker,'Close'),(ticker,'Volume')], axis = 1)
-            except:
-                continue
-        trimmedStockPriceDf.columns = trimmedStockPriceDf.columns.droplevel(1)
-        trimmedStockPriceDf.reset_index(drop=True, inplace=True)
-        tdict = trimmedStockPriceDf.to_dict()
+        # tickers = []
+        # for stock in stocks:
+        #     tickers.append(stock['symbol'])
+        # print('********************Downloading stock data*****************')
+        # stockPriceDf18 = yf.download(tickers, group_by='Ticker', start="2018-01-02", end="2018-01-03")
+        # stockPriceDf19 = yf.download(tickers, group_by='Ticker', start="2019-01-02", end="2019-01-03")
+        # stockPriceDf20 = yf.download(tickers, group_by='Ticker', start="2020-01-02", end="2020-01-03")
+        # stockPriceDf21 = yf.download(tickers, group_by='Ticker', start="2021-01-04", end="2021-01-05")
+        # stockPriceDf18end = yf.download(tickers, group_by='Ticker', start="2018-12-29", end="2018-12-30")
+        # stockPriceDf19end = yf.download(tickers, group_by='Ticker', start="2020-01-01", end="2020-01-01")
+        # stockPriceDf20end = yf.download(tickers, group_by='Ticker', start="2021-01-01", end="2021-01-01")
+        # stockPriceDf21end = yf.download(tickers, group_by='Ticker', start="2022-01-01", end="2022-01-01")
+        # stockPriceDf = pd.concat([stockPriceDf18, stockPriceDf18end, stockPriceDf19, stockPriceDf19end, stockPriceDf20, stockPriceDf20end, stockPriceDf21, stockPriceDf21end])
+        # print('********************Trimming stock data*********************')
+        # trimmedStockPriceDf = stockPriceDf.dropna(axis=0, how='all')
+        # trimmedStockPriceDf = trimmedStockPriceDf.dropna(axis=1)
+        # for ticker in tickers:
+        #     try:
+        #         trimmedStockPriceDf = trimmedStockPriceDf.drop([(ticker,'Open'),(ticker,'High'),(ticker,'Low'),(ticker,'Close'),(ticker,'Volume')], axis = 1)
+        #     except:
+        #         continue
+        # trimmedStockPriceDf.columns = trimmedStockPriceDf.columns.droplevel(1)
+        # trimmedStockPriceDf.reset_index(drop=True, inplace=True)
+        # tdict = trimmedStockPriceDf.to_dict()
+        # res = []
+        # for stock in stocks:
+        #     temp = {}
+        #     temp['symbol'] = stock['symbol']
+        #     temp['name'] = stock['name']
+        #     temp['sector'] = stock['sector']
+        #     temp['weight'] = stock['weight']
+        #     temp['prices'] = {'start2018' : tdict[stock['symbol']][0],
+        #                       'end2018' : tdict[stock['symbol']][1],
+        #                       'start2019' : tdict[stock['symbol']][2],
+        #                       'end2019' : tdict[stock['symbol']][3],
+        #                       'start2020' : tdict[stock['symbol']][4],
+        #                       'end2020' : tdict[stock['symbol']][5],
+        #                       'start2021' : tdict[stock['symbol']][6],
+        #                       'end2021' : tdict[stock['symbol']][7],
+        #                      }
+        #     res.append(temp)
         res = []
         for stock in stocks:
             temp = {}
@@ -222,14 +239,14 @@ def analyzePortfolio(request):
             temp['name'] = stock['name']
             temp['sector'] = stock['sector']
             temp['weight'] = stock['weight']
-            temp['prices'] = {'start2018' : tdict[stock['symbol']][0],
-                              'end2018' : tdict[stock['symbol']][1],
-                              'start2019' : tdict[stock['symbol']][2],
-                              'end2019' : tdict[stock['symbol']][3],
-                              'start2020' : tdict[stock['symbol']][4],
-                              'end2020' : tdict[stock['symbol']][5],
-                              'start2021' : tdict[stock['symbol']][6],
-                              'end2021' : tdict[stock['symbol']][7],
+            temp['prices'] = {'start2018' : stock['start2018'],
+                              'end2018' : stock['end2018'],
+                              'start2019' : stock['start2019'],
+                              'end2019' : stock['end2019'],
+                              'start2020' : stock['start2020'],
+                              'end2020' : stock['end2020'],
+                              'start2021' : stock['start2021'],
+                              'end2021' : stock['end2021'],
                              }
             res.append(temp)
         return Response({'analyzeResult' : res})

@@ -25,9 +25,18 @@ class WeightedStockSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='stock.name')
     sector = serializers.CharField(source='stock.sector')
     stock_id = serializers.IntegerField(source='stock.id')
+    start2018 = serializers.IntegerField(source='stock.start2018')
+    end2018 = serializers.IntegerField(source='stock.end2018')
+    start2019 = serializers.IntegerField(source='stock.start2019')
+    end2019 = serializers.IntegerField(source='stock.end2019')
+    start2020 = serializers.IntegerField(source='stock.start2020')
+    end2020 = serializers.IntegerField(source='stock.end2020')
+    start2021 = serializers.IntegerField(source='stock.start2021')
+    end2021 = serializers.IntegerField(source='stock.end2021')
+
     class Meta:
         model = WeightedStock
-        fields = ['id','portfolio', 'symbol', 'weight', 'name', 'sector', 'stock_id']
+        fields = ['id','portfolio', 'symbol', 'weight', 'name', 'sector', 'stock_id', 'start2018', 'end2018', 'start2019', 'end2019','start2020', 'end2020','start2021', 'end2021']
     
 class SocialLoginSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)

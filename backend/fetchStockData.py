@@ -42,14 +42,16 @@ for index, row in responseDf.iterrows():
     tickers.append(row[NasdaqTag[0]])
     stockDict[row[NasdaqTag[0]]] = [row[NasdaqTag[1]], row[NasdaqTag[2]]]
 
-pkDict = {}
+
+# print(tickers)
+# pkDict = {}
 
 # print(pkDict)
 
 # tickers = ['AAPL','TSLA']
 
 print('********************Downloading stock data*****************')
-stockPriceDf = yf.download(tickers, group_by = 'ticker', start="2011-01-01", end="2018-01-01", threads = True, interval = '1d',prepost = False,proxy = None)
+stockPriceDf = yf.download(tickers, group_by = 'ticker', start="2008-01-01", end="2018-01-01", interval = '1d')
 
 
 print('********************Trimming stock data*********************')
@@ -67,6 +69,7 @@ for ticker in tickers:
 
 trimmedStockPriceDf.columns = trimmedStockPriceDf.columns.droplevel(1)
 trimmedStockPriceDf.reset_index(drop=True, inplace=True)
+print(trimmedStockPriceDf)
 # tdict = trimmedStockPriceDf.to_dict()
 # print(tdict)
 
@@ -81,25 +84,23 @@ print('********************Saving stock data***********************')
 data = []
 for col in trimmedStockPriceDf:
     # print(col)
-    try:
-        dataInstance = {}
-        field = {}
-        dataInstance['model'] = 'aifund.Stock'
-        field['symbol'] = col[0]
-        field['name'] = stockDict[col[0]][0]
-        field['sector'] = stockDict[col[0]][1]
-        stockPrice = trimmedStockPriceDf[col].tolist()
-        daily_return = [0]
+    dataInstance = {}
+    field = {}
+    dataInstance['model'] = 'aifund.Stock'
+    field['symbol'] = col
+    field['name'] = stockDict[col][0]
+    field['sector'] = stockDict[col][1]
+    stockPrice = trimmedStockPriceDf[col].tolist()
+    daily_return = [0]
 
-        for i in range(1, len(stockPrice)):
-            returnValue = (stockPrice[i] - stockPrice[i-1])/stockPrice[i-1]*100
-            daily_return.append(returnValue)
+    for i in range(1, len(stockPrice)):
+        returnValue = (stockPrice[i] - stockPrice[i-1])/stockPrice[i-1]*100
+        daily_return.append(returnValue)
 
-        field['dailyReturn'] = daily_return
-        dataInstance['fields'] = field
-        data.append(dataInstance)
-    except Exception as E:
-        print(E)
+    field['dailyReturn'] = daily_return
+    dataInstance['fields'] = field
+    data.append(dataInstance)
+
 
 
 with open(f'newStock.json', 'w') as f:
