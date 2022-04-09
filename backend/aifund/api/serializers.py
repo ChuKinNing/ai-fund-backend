@@ -42,11 +42,7 @@ class SocialLoginSerializer(serializers.Serializer):
     token = serializers.CharField(required=True)
 
     def verify_token(self, token):
-        """
-        驗證 id_token 是否正確
 
-        token: JWT
-        """
         try:
             idinfo = id_token.verify_oauth2_token(token, requests.Request(), SOCIAL_GOOGLE_CLIENT_ID)
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:

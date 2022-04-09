@@ -159,7 +159,7 @@ def optimizePortfolio(request):
         portfolio_id = data['portfolio']
         portfolio = Portfolio.objects.get(id=portfolio_id)
         allowShort = portfolio.allowShort
-        portfolio = data['portfolio']
+        user_id = portfolio.owner.id
         weightedStocks = WeightedStock.objects.filter(portfolio=portfolio_id)
         serializer = WeightedStockSerializer(weightedStocks, many=True)
         stocks = serializer.data

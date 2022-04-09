@@ -45,10 +45,10 @@ class Optimizer:
         weights = np.abs(weights)
         weights = weights / np.abs(weights).sum()
         weights = np.matrix(weights)
-        port_return = np.round(np.sum(weights * mean_daily_returns.T) * 1509, 2)/5 # 1509 trading days over 10 year period
-        port_std_dev = np.round(np.sqrt(weights * cov_matrix * weights.T) * np.sqrt(1509), 2)/np.sqrt(5)
+        port_return = np.round(np.sum(weights * mean_daily_returns.T) * 2769, 2)/5 # 2769 trading days over 10 year period
+        port_std_dev = np.round(np.sqrt(weights * cov_matrix * weights.T) * np.sqrt(2769), 2)/np.sqrt(5)
         port_std_dev = float(port_std_dev)
-        sharpe_ratio = (port_return - 1.92)/ port_std_dev # 2.57 represents annual return of risk free security - 10-year US Treasury
+        sharpe_ratio = (port_return - 2.7)/ port_std_dev # 2.57 represents annual return of risk free security - 10-year US Treasury
         if sharpe_ratio <= 0:
             sharpe_ratio = 1E-10
         return  1.0/sharpe_ratio
