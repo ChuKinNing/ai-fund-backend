@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 DATABASES = {
-    'default': os.environ.get("postgres://bjscjnadvrmmow:857d292bf7b679c0a6c7bb7ec7374c1ef1efafa269c606fc1c5d19f008ee5a10@ec2-3-217-251-77.compute-1.amazonaws.com:5432/d8if06276v5q17")
+    'default': os.environ.get("DATABASE_URL")
 }
 
 
