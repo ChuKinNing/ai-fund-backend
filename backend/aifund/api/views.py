@@ -16,6 +16,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 import yfinance as yf
 import pandas as pd
 
+import threading
+from django.conf import settings
+from django.core.mail import send_mail
+
+
 @api_view(['POST'])
 def createPortfolio(request):
     if request.method == 'POST':
@@ -152,37 +157,80 @@ def optimizePortfolio(request):
     if request.method == 'POST':
         print('Optimize start')
         data = request.data
-        algo = data['algo']
-        population = int(data['population'])
-        iteration = int(data['iteration'])
-        # algo='GA'
-        portfolio_id = data['portfolio']
-        portfolio = Portfolio.objects.get(id=portfolio_id)
-        allowShort = portfolio.allowShort
-        user_id = portfolio.owner.id
-        weightedStocks = WeightedStock.objects.filter(portfolio=portfolio_id)
-        serializer = WeightedStockSerializer(weightedStocks, many=True)
-        stocks = serializer.data
-        stockDict = {}
-        result = {}
-        for stock in stocks:
-            stockid = stock['stock_id']
-            stockObj = Stock.objects.get(id=stockid)
-            dailyReturn = getattr(stockObj, 'dailyReturn')
-            symbol = getattr(stockObj, 'symbol')
-            stockDict[symbol] = dailyReturn
-        optimizer = Optimizer()
-        response = {}
-        result = optimizer.runOptimizer(stockDict, algo, allowShort, population, iteration)
-        response['best_solution'], response['out'] = result[0], result[1]
-        for i in range(len(stocks)):
-            weightedStock = WeightedStock.objects.get(id=stocks[i]['id'])
-            weightedStock.weight = response['best_solution'][i]
-            weightedStock.save()
-        temp = Portfolio.objects.get(id=portfolio_id)
-        temp.hasOpitimized = True
-        temp.save()
-        return Response(response)
+        # algo = data['algo']
+        # population = int(data['population'])
+        # iteration = int(data['iteration'])
+        # # algo='GA'
+        # portfolio_id = data['portfolio']
+        # portfolio = Portfolio.objects.get(id=portfolio_id)
+        # allowShort = portfolio.allowShort
+        # user_id = portfolio.owner.id
+        # weightedStocks = WeightedStock.objects.filter(portfolio=portfolio_id)
+        # serializer = WeightedStockSerializer(weightedStocks, many=True)
+        # stocks = serializer.data
+        # stockDict = {}
+        # result = {}
+        # for stock in stocks:
+        #     stockid = stock['stock_id']
+        #     stockObj = Stock.objects.get(id=stockid)
+        #     dailyReturn = getattr(stockObj, 'dailyReturn')
+        #     symbol = getattr(stockObj, 'symbol')
+        #     stockDict[symbol] = dailyReturn
+        # optimizer = Optimizer()
+        # response = {}
+        # result = optimizer.runOptimizer(stockDict, algo, allowShort, population, iteration)
+        # response['best_solution'], response['out'] = result[0], result[1]
+        # for i in range(len(stocks)):
+        #     weightedStock = WeightedStock.objects.get(id=stocks[i]['id'])
+        #     weightedStock.weight = response['best_solution'][i]
+        #     weightedStock.save()
+        # temp = Portfolio.objects.get(id=portfolio_id)
+        # temp.hasOpitimized = True
+        # temp.save()
+        # return Response(response)
+        t = threading.Thread(target=computeOptimization, args=[data])
+        t.setDaemon(True)
+        t.start()
+        return JsonResponse({'status': "201"})
+
+def computeOptimization(data):
+    algo = data['algo']
+    population = int(data['population'])
+    iteration = int(data['iteration'])
+    # algo='GA'
+    portfolio_id = data['portfolio']
+    portfolio = Portfolio.objects.get(id=portfolio_id)
+    allowShort = portfolio.allowShort
+    user = portfolio.owner
+    weightedStocks = WeightedStock.objects.filter(portfolio=portfolio_id)
+    serializer = WeightedStockSerializer(weightedStocks, many=True)
+    stocks = serializer.data
+    stockDict = {}
+    result = {}
+    for stock in stocks:
+        stockid = stock['stock_id']
+        stockObj = Stock.objects.get(id=stockid)
+        dailyReturn = getattr(stockObj, 'dailyReturn')
+        symbol = getattr(stockObj, 'symbol')
+        stockDict[symbol] = dailyReturn
+    optimizer = Optimizer()
+    response = {}
+    result = optimizer.runOptimizer(stockDict, algo, allowShort, population, iteration)
+    response['best_solution'], response['out'] = result[0], result[1]
+    for i in range(len(stocks)):
+        weightedStock = WeightedStock.objects.get(id=stocks[i]['id'])
+        weightedStock.weight = response['best_solution'][i]
+        weightedStock.save()
+    temp = Portfolio.objects.get(id=portfolio_id)
+    temp.hasOpitimized = True
+    temp.save()
+    subject = 'Portfolio ' + portfolio.name + ' is optimized'
+    message = f'Hi {user.first_name},\n\nThe captioned portfolio is optimized.\n\nThank you very much for your patience!\n\nBest regards,\nAI Fund'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [user.email, ]
+    send_mail( subject, message, email_from, recipient_list )
+    print('Optimization is finished')
+
 
 @api_view(['POST'])
 def analyzePortfolio(request):
