@@ -19,6 +19,7 @@ whitenoise = "*"
 django-heroku = "*"
 psycopg2-binary = "*"
 gunicorn = "*"
+environs = {extras = ["django"], version = "*"}
 
 [dev-packages]
 
