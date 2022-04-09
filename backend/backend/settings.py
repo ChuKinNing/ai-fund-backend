@@ -93,14 +93,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',  #PostgreSQL
-        'NAME': 'aifundv2',  #資料庫名稱
-        'USER': 'postgres',  #資料庫帳號
-        'PASSWORD': '00624ckn',  #資料庫密碼
-        'HOST': 'localhost',  #Server(伺服器)位址
-        'PORT': '5432'  #PostgreSQL Port號
-    }
+    'default': os.environ.get("postgres://bjscjnadvrmmow:857d292bf7b679c0a6c7bb7ec7374c1ef1efafa269c606fc1c5d19f008ee5a10@ec2-3-217-251-77.compute-1.amazonaws.com:5432/d8if06276v5q17")
 }
 
 
